@@ -1,0 +1,243 @@
+{
+  "info": {
+    "name": "Inframantra Chatbot API",
+    "description": "Luxury real estate chatbot for Inframantra — tests for /health and /chat endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health",
+        "description": "Returns server status, Redis connectivity, and number of loaded knowledge chunks."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));",
+              "pm.test('redis field present', () => pm.expect(pm.response.json()).to.have.property('redis'));",
+              "pm.test('knowledge_chunks field present', () => pm.expect(pm.response.json()).to.have.property('knowledge_chunks'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — Greeting (English)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Hello, I am looking for a luxury property in Gurugram\",\n  \"session_id\": \"postman-001\"\n}"
+        },
+        "description": "First message — should greet and ask investment vs end-use."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('has answer', () => pm.expect(b.answer).to.be.a('string').and.not.empty);",
+              "pm.test('has follow_up_question', () => pm.expect(b.follow_up_question).to.be.a('string'));",
+              "pm.test('has cta', () => pm.expect(b.cta).to.be.a('string'));",
+              "pm.test('language is en', () => pm.expect(b.language).to.eql('en'));",
+              "pm.test('handoff_needed is bool', () => pm.expect(b.handoff_needed).to.be.a('boolean'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — Investment Intent",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"I want to invest for ROI and capital appreciation\",\n  \"session_id\": \"postman-001\"\n}"
+        },
+        "description": "Investment intent — should bias toward Westin Residences."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('project_bias is westin or neutral', () => pm.expect(['westin','neutral']).to.include(b.project_bias));",
+              "pm.test('answer mentions Westin or investment', () => pm.expect(b.answer.toLowerCase()).to.satisfy(s => s.includes('westin') || s.includes('invest') || s.includes('roi')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — 4BHK Preference",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"I am looking for a 4 BHK apartment\",\n  \"session_id\": \"postman-002\"\n}"
+        },
+        "description": "BHK preference — should acknowledge 4BHK and provide relevant info."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('has answer', () => pm.expect(b.answer).to.be.a('string').and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — End-Use / Family Intent",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"I have a family with kids, want to live in it, end use\",\n  \"session_id\": \"postman-003\"\n}"
+        },
+        "description": "End-use intent — should bias toward Tulip Monsella."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('project_bias is tulip or neutral', () => pm.expect(['tulip','neutral']).to.include(b.project_bias));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — Hindi Message",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Hanji mujhe 4 BHK chahiye hai invest karna hai\",\n  \"session_id\": \"postman-004\"\n}"
+        },
+        "description": "Hindi message — response should be in Hindi."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('language is hi', () => pm.expect(b.language).to.eql('hi'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — Budget Mention",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"My budget is around 10 crore\",\n  \"session_id\": \"postman-005\"\n}"
+        },
+        "description": "Budget mention — should acknowledge budget and guide accordingly."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('has answer', () => pm.expect(b.answer).to.be.a('string').and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — Phone Number Capture",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Sure, my number is 9876543210\",\n  \"session_id\": \"postman-005\"\n}"
+        },
+        "description": "Phone capture — should acknowledge and move toward handoff."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('has answer', () => pm.expect(b.answer).to.be.a('string').and.not.empty);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chat — Reset Session",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/chat",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"reset\",\n  \"session_id\": \"postman-001\"\n}"
+        },
+        "description": "Reset phrase — clears session and returns fresh greeting."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "const b = pm.response.json();",
+              "pm.test('lead_stage is new', () => pm.expect(b.lead_stage).to.eql('new'));",
+              "pm.test('answer mentions start fresh', () => pm.expect(b.answer.toLowerCase()).to.include('start fresh'));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
