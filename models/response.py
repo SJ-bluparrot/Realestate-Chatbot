@@ -12,3 +12,4 @@ class ChatResponse(BaseModel):
     cta: str
     handoff_needed: bool
     ask_contact: bool = False
+    suggested_replies: list[str] = []

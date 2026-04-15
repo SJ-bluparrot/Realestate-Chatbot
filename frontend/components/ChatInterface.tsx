@@ -7,6 +7,7 @@ import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import TypingIndicator from './TypingIndicator';
 import ContactWidget from './ContactWidget';
+import SuggestedReplies from './SuggestedReplies';
 
 export default function ChatInterface() {
   const { messages, isLoading, initialized, init, sendMessage, resetChat, leadCaptured, sessionId } = useChatStore();
@@ -71,6 +72,17 @@ export default function ChatInterface() {
           <div ref={bottomRef} className="h-4" />
         </div>
       </div>
+
+      {/* Suggested reply chips — from the last assistant message */}
+      {(() => {
+        const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
+        const replies = (!isLoading && lastAssistant?.suggestedReplies) ? lastAssistant.suggestedReplies : [];
+        return (
+          <div className="max-w-2xl w-full mx-auto">
+            <SuggestedReplies replies={replies} onSelect={sendMessage} disabled={isLoading} />
+          </div>
+        );
+      })()}
 
       {/* Input */}
       <div className="max-w-2xl w-full mx-auto px-0 md:px-0">

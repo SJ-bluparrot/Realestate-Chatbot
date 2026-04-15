@@ -8,6 +8,7 @@ __pycache__/
 knowledge/embeddings_cache.json
 leads/leads.json
 leads/contacts.json
+credentials.json
 
 # --- Python / FastAPI ---
 .venv/

@@ -82,17 +82,21 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         message: trimmed,
       });
 
+      // HandoffCard shows only on the first message where handoff fires — never again
+      const alreadyCaptured = get().leadCaptured;
+
       const assistantMsg: Message = {
         id: generateSessionId(),
         role: 'assistant',
         content: data.answer,
         followUpQuestion: data.follow_up_question || undefined,
         cta: data.cta || undefined,
-        handoffNeeded: data.handoff_needed,
+        handoffNeeded: data.handoff_needed && !alreadyCaptured,
         projectBias: data.project_bias,
         urgencyFlag: data.urgency_flag,
         language: data.language,
         askContact: data.ask_contact,
+        suggestedReplies: data.suggested_replies?.length ? data.suggested_replies : undefined,
         timestamp: new Date(),
       };
 

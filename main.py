@@ -236,6 +236,14 @@ async def chat_endpoint(request: ChatRequest):
     response_data.pop("captured_name", None)
     response_data["ask_contact"] = ask_contact
 
+    # Don't show suggestions once contact is captured — conversation is done
+    if session.state.lead_stage in ("captured", "handed_off"):
+        response_data["suggested_replies"] = []
+
+    # Ensure suggested_replies is always a list
+    if not isinstance(response_data.get("suggested_replies"), list):
+        response_data["suggested_replies"] = []
+
     return ChatResponse(**response_data)
 
 

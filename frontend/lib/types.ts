@@ -9,6 +9,7 @@ export interface Message {
   urgencyFlag?: boolean;
   language?: 'en' | 'hi';
   askContact?: boolean;
+  suggestedReplies?: string[];
   timestamp: Date;
 }
 
@@ -22,6 +23,7 @@ export interface ChatApiResponse {
   cta: string;
   handoff_needed: boolean;
   ask_contact: boolean;
+  suggested_replies: string[];
 }
 
 export interface ChatApiRequest {

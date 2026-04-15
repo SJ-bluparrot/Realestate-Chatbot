@@ -139,9 +139,11 @@ Respond ONLY as a single valid JSON object with exactly these keys:
   "language": "en or hi",
   "cta": "short call-to-action phrase",
   "handoff_needed": false,
-  "captured_name": null
+  "captured_name": null,
+  "suggested_replies": ["short reply 1", "short reply 2", "short reply 3"]
 }}
 
+- suggested_replies: 2–3 short clickable responses (max 5 words each) that directly answer your follow_up_question. Make them feel natural, not robotic. Examples for different questions: BHK question → ["3 BHK", "4 BHK", "5 BHK"]; intent question → ["For investment", "For my family", "Both"]; location question → ["Golf Course Road", "Dwarka Expressway", "No preference"]; amenities question → ["Tell me more", "What about pricing?", "Show me floor plans"]. Match the language (en/hi) of the conversation.
 - Set captured_name to the user's name if they mention it in their current message, otherwise null.
 - Set handoff_needed to true once phone has been captured.
 - lead_stage must be one of: new, exploring, qualified, warm, captured, handed_off

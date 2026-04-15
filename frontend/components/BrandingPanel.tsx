@@ -47,7 +47,7 @@ function WestinCard({ delay }: { delay: number }) {
             Westin Residences
           </p>
           <p className="text-xs font-light mt-0.5" style={{ color: '#6B6560' }}>
-            Investment · Branded
+            Dwarka Expressway
           </p>
         </div>
         <motion.div
@@ -109,7 +109,7 @@ function TulipCard({ delay }: { delay: number }) {
             Tulip Monsella
           </p>
           <p className="text-xs font-light mt-0.5" style={{ color: '#6B6560' }}>
-            Family · Large Format
+            Golf Course Road
           </p>
         </div>
         <span style={{ color: '#B8965A' }}>
