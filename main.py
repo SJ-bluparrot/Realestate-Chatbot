@@ -63,6 +63,12 @@ class ContactRequest(BaseModel):
     session_id: str = ""
 
 
+class BookingRequest(BaseModel):
+    session_id: str
+    visit_date: str   # e.g. "2026-04-20"
+    visit_time: str   # e.g. "11:00 AM"
+
+
 @app.get("/health")
 def health():
     try:
@@ -111,11 +117,32 @@ def capture_contact(request: ContactRequest):
     # Advance stage if still at an early stage
     if session.state.lead_stage in ("new", "exploring", "qualified", "warm"):
         session.state.lead_stage = "captured"
+    # Mark that the inline ContactCard (not the widget) was used — gates BookingCard
+    if source == "card":
+        session.state.contact_card_submitted = True
 
     save_session(session_key, session)
     save_lead(session_key, session.state)
 
     return {"status": "saved"}
+
+
+@app.post("/book-visit", status_code=201)
+def book_visit(request: BookingRequest):
+    session_id = request.session_id.strip()
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id required")
+
+    session = load_session(session_id)
+    session.state.visit_date = request.visit_date.strip()
+    session.state.visit_time = request.visit_time.strip()
+    session.state.visit_status = "pending"
+
+    save_session(session_id, session)
+    save_lead(session_id, session.state)
+
+    print(f"[booking] {session.state.name} / {session.state.phone} → {request.visit_date} {request.visit_time}", flush=True)
+    return {"status": "booked", "visit_date": session.state.visit_date, "visit_time": session.state.visit_time}
 
 
 @app.post("/chat", response_model=ChatResponse)
@@ -226,15 +253,33 @@ async def chat_endpoint(request: ChatRequest):
     # Save every session to leads.json after every message so partial data is never lost
     save_lead(session_id, session.state)
 
-    # ask_contact: use engine_stage (before any LLM override) so the card always fires at warm
+    # ask_contact: fires at warm stage before phone is captured
     ask_contact = (
         engine_stage == "warm"
         and not session.state.phone
     )
 
+    # ask_booking: fires exactly once — only when name+phone were submitted via the inline
+    # ContactCard (contact_card_submitted=True). Never fires if the user typed their
+    # details manually or used the floating widget.
+    # Suppressed once shown (booking_card_shown) or once booking is submitted (visit_status).
+    ask_booking = (
+        session.state.contact_card_submitted
+        and session.state.lead_stage in ("captured", "handed_off")
+        and not ask_contact
+        and not bool(session.state.visit_status)
+        and not session.state.booking_card_shown
+    )
+
+    # Mark as shown so it never fires again, even if user ignores the card
+    if ask_booking:
+        session.state.booking_card_shown = True
+        save_session(session_id, session)
+
     # Strip internal fields before returning to frontend
     response_data.pop("captured_name", None)
     response_data["ask_contact"] = ask_contact
+    response_data["ask_booking"] = ask_booking
 
     # Don't show suggestions once contact is captured — conversation is done
     if session.state.lead_stage in ("captured", "handed_off"):

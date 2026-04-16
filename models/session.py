@@ -15,6 +15,12 @@ class UserState(BaseModel):
     messages_count: int = 0
     value_delivered: bool = False
     urgency_last_triggered: Optional[int] = None
+    visit_intent: bool = False
+    visit_date: Optional[str] = None
+    visit_time: Optional[str] = None
+    visit_status: Optional[str] = None
+    booking_card_shown: bool = False
+    contact_card_submitted: bool = False
 
 
 class ChatMessage(BaseModel):

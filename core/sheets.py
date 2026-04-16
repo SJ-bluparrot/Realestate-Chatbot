@@ -7,7 +7,7 @@ background thread so it never blocks the API response.
 Sheet columns (must match row 1 headers exactly):
   A: session_id  B: name  C: phone  D: intent  E: bhk_preference
   F: project_interest  G: lead_stage  H: messages_count
-  I: first_seen  J: last_updated
+  I: first_seen  J: last_updated  K: visit_date  L: visit_time  M: visit_status
 """
 
 import os
@@ -29,6 +29,7 @@ _COLUMNS = [
     "session_id", "name", "phone", "intent", "bhk_preference",
     "project_interest", "lead_stage", "messages_count",
     "first_seen", "last_updated",
+    "visit_date", "visit_time", "visit_status",
 ]
 
 _worksheet: gspread.Worksheet | None = None
@@ -85,7 +86,7 @@ def upsert_lead(lead: dict) -> None:
                 new_row = _row_for(lead)
                 cell = _worksheet.find(session_id, in_column=1)
                 if cell:
-                    _worksheet.update(f"A{cell.row}:J{cell.row}", [new_row])
+                    _worksheet.update(f"A{cell.row}:M{cell.row}", [new_row])
                 else:
                     _worksheet.append_row(new_row, value_input_option="USER_ENTERED")
                 print(f"[sheets] Synced: {session_id} | {lead.get('name')} | {lead.get('lead_stage')}", flush=True)

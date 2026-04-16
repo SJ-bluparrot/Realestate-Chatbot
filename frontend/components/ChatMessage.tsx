@@ -5,6 +5,7 @@ import { Message } from '@/lib/types';
 import CTAPrompt from './CTAPrompt';
 import HandoffCard from './HandoffCard';
 import ContactCard from './ContactCard';
+import BookingCard from './BookingCard';
 import { useChatStore } from '@/store/chatStore';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -74,7 +75,7 @@ function UserMessage({ content }: { content: string }) {
 }
 
 function AssistantMessage({ message }: { message: Message }) {
-  const { sendMessage } = useChatStore();
+  const { sendMessage, sessionId } = useChatStore();
   const hasProject =
     message.projectBias && message.projectBias !== 'neutral' && PROJECT_LABELS[message.projectBias];
 
@@ -151,14 +152,27 @@ function AssistantMessage({ message }: { message: Message }) {
           {/* Contact capture card */}
           {message.askContact && (
             <ContactCard
-              onSubmit={(name, phone) =>
-                sendMessage(`My name is ${name} and my phone number is ${phone}`)
-              }
+              onSubmit={async (name, phone) => {
+                // Register the ContactCard submission so the backend can gate the BookingCard on it
+                try {
+                  await fetch(`${API_URL}/capture-contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, source: 'card', session_id: sessionId }),
+                  });
+                } catch (_) {
+                  // Non-fatal — proceed to send the message regardless
+                }
+                sendMessage(`My name is ${name} and my phone number is ${phone}`);
+              }}
             />
           )}
 
-          {/* Handoff card */}
+          {/* Handoff card — shown once after contact is captured */}
           {message.handoffNeeded && <HandoffCard />}
+
+          {/* Booking card — shown when ask_booking fires (after capture or on visit intent) */}
+          {message.askBooking && <BookingCard sessionId={sessionId} />}
 
           {/* Brochure download strip */}
           {message.projectBias && message.projectBias !== 'neutral' && BROCHURE_CONFIG[message.projectBias] && (

@@ -12,4 +12,5 @@ class ChatResponse(BaseModel):
     cta: str
     handoff_needed: bool
     ask_contact: bool = False
+    ask_booking: bool = False
     suggested_replies: list[str] = []

@@ -26,6 +26,9 @@ def save_lead(session_id: str, state: UserState) -> None:
         "lead_stage": state.lead_stage,
         "language": state.language,
         "messages_count": state.messages_count,
+        "visit_date": state.visit_date,
+        "visit_time": state.visit_time,
+        "visit_status": state.visit_status,
     }
 
     LEADS_FILE.parent.mkdir(parents=True, exist_ok=True)

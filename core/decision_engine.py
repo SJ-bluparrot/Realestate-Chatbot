@@ -7,6 +7,15 @@ END_USE_SIGNALS = {"family", "kids", "school", "live in", "end use", "ghar", "re
 # Direct project keyword signals — override bias immediately
 TULIP_SIGNALS = {"tulip", "monsella", "tulip monsella", "golf course", "sector 53"}
 WESTIN_SIGNALS = {"westin", "whiteland", "westin residences", "dwarka expressway", "sector 103"}
+
+# Visit intent signals — user wants to physically see the property
+VISIT_SIGNALS = {
+    "visit", "site visit", "come see", "see the flat", "see the property",
+    "see the apartment", "tour", "show me", "in person", "walk through",
+    "physical visit", "book a visit", "schedule a visit", "appointment",
+    "dekhna", "dekhne", "aana chahta", "aana chahti", "milna", "dikhaiye",
+    "show flat", "site tour", "property tour", "viewing",
+}
 HINDI_TOKENS = {
     "hai", "hain", "kya", "mujhe", "aap", "nahi", "batao", "chahiye",
     "kaisa", "kab", "kahan", "kyun", "theek", "accha", "bahut", "hanji",
@@ -59,6 +68,10 @@ def classify(message: str, state: UserState) -> UserState:
     elif any(signal in msg_lower for signal in WESTIN_SIGNALS):
         state.project_bias = "westin"
 
+    # Visit intent — once set, stays set
+    if not state.visit_intent and any(signal in msg_lower for signal in VISIT_SIGNALS):
+        state.visit_intent = True
+
     for bhk in [3, 4, 5]:
         if f"{bhk} bhk" in msg_lower or f"{bhk}bhk" in msg_lower:
             state.bhk_preference = bhk
@@ -105,8 +118,10 @@ def _advance_lead_stage(state: UserState) -> UserState:
     ):
         state.lead_stage = "qualified"
 
-    # Warm: after 4 messages (card fires) — from qualified OR from exploring if user never gave BHK/project
-    if state.lead_stage in ("qualified", "exploring") and state.messages_count >= 4:
+    # Warm: after 4 messages OR immediately if visit intent detected
+    if state.lead_stage in ("qualified", "exploring") and (
+        state.messages_count >= 4 or state.visit_intent
+    ):
         state.lead_stage = "warm"
 
     if state.lead_stage == "warm" and state.phone:

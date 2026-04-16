@@ -24,12 +24,16 @@ _STAGE_INSTRUCTIONS: dict[str, str] = {
         "Phone number has been captured. "
         "If the user's name is known, address them by name warmly. "
         "Thank them and confirm a senior advisor will call them shortly. "
+        "A site visit booking form has appeared below — mention it once naturally, e.g. "
+        "'You can also book a site visit directly using the form below — our team will confirm your slot.' "
         "Set handoff_needed=true. "
         "If the user gave their name in this message, set captured_name to that name."
     ),
     "handed_off": (
         "Lead is fully captured. Address the user by name if known. "
-        "Keep tone warm and confirmatory. Set handoff_needed=true."
+        "Keep tone warm and confirmatory. "
+        "If a site visit has not yet been booked, gently remind them the booking form is available below. "
+        "Set handoff_needed=true."
     ),
 }
 
@@ -81,6 +85,11 @@ def build(
 
     name_display = state.name or "unknown"
     budget_display = f"₹{state.budget_cr} Cr" if state.budget_cr else "unknown"
+    visit_intent_line = (
+        "Visit intent: YES — the user has expressed interest in a physical site visit."
+        if state.visit_intent
+        else "Visit intent: not yet expressed."
+    )
 
     return f"""You are ARIA, a luxury real estate advisor at Inframantra, specialising exclusively in two Gurugram residences: Whiteland Westin Residences (Sector 103, Dwarka Expressway) and Tulip Monsella (Sector 53, Golf Course Road).
 
@@ -115,6 +124,7 @@ def build(
 Intent: {state.intent} | BHK preference: {state.bhk_preference or 'unknown'} | Budget: {budget_display}
 Project interest: {state.project_bias} | Lead stage: {state.lead_stage}
 Name: {name_display} {"← Address the user as '" + state.name + "' in your response." if state.name else "← Name not yet known."}
+{visit_intent_line}
 
 [CURRENT STAGE INSTRUCTION]
 {stage_instruction}

@@ -20,6 +20,7 @@ interface ChatStore {
   messages: Message[];
   isLoading: boolean;
   leadCaptured: boolean;
+  bookingShown: boolean;
   initialized: boolean;
   init: () => void;
   sendMessage: (text: string) => Promise<void>;
@@ -31,6 +32,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   messages: [],
   isLoading: false,
   leadCaptured: false,
+  bookingShown: false,
   initialized: false,
 
   init: () => {
@@ -72,7 +74,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         timestamp: new Date(),
         ...WELCOME_MESSAGE,
       };
-      set({ sessionId: newId, messages: [welcomeMsg], isLoading: false });
+      set({ sessionId: newId, messages: [welcomeMsg], isLoading: false, leadCaptured: false, bookingShown: false });
       return;
     }
 
@@ -84,6 +86,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
       // HandoffCard shows only on the first message where handoff fires — never again
       const alreadyCaptured = get().leadCaptured;
+      // BookingCard shows only once — suppress after it has been shown
+      const alreadyBookingShown = get().bookingShown;
+      const showBooking = data.ask_booking && !alreadyBookingShown;
 
       const assistantMsg: Message = {
         id: generateSessionId(),
@@ -96,6 +101,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         urgencyFlag: data.urgency_flag,
         language: data.language,
         askContact: data.ask_contact,
+        askBooking: showBooking,
         suggestedReplies: data.suggested_replies?.length ? data.suggested_replies : undefined,
         timestamp: new Date(),
       };
@@ -104,6 +110,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         messages: [...get().messages, assistantMsg],
         isLoading: false,
         leadCaptured: data.handoff_needed || get().leadCaptured,
+        bookingShown: showBooking || get().bookingShown,
       });
     } catch (err) {
       const errorMsg: Message = {
@@ -125,6 +132,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       timestamp: new Date(),
       ...WELCOME_MESSAGE,
     };
-    set({ sessionId: newId, messages: [welcomeMsg], isLoading: false });
+    set({ sessionId: newId, messages: [welcomeMsg], isLoading: false, leadCaptured: false, bookingShown: false });
   },
 }));
