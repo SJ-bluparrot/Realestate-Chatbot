@@ -24,7 +24,6 @@ load_dotenv()
 BASE_DIR = Path(__file__).parent
 BROCHURES = {
     "westin-main": BASE_DIR / "Westin-Residences-Brochure" / "The Westin Residences, Gurugram.pdf",
-    "westin-docket": BASE_DIR / "Westin-Residences-Brochure" / "Westin-Residences-Gurugram-WhatsApp-CP Docket.pdf",
     "tulip": BASE_DIR / "Tupil-Monsella-PDF's" / "brochure small.pdf",
 }
 
@@ -235,11 +234,22 @@ async def chat_endpoint(request: ChatRequest):
     if llm_stage in STAGE_ORDER:
         engine_idx = STAGE_ORDER.index(engine_stage)
         llm_idx = STAGE_ORDER.index(llm_stage)
-        session.state.lead_stage = STAGE_ORDER[max(engine_idx, llm_idx)]
+        resolved = STAGE_ORDER[max(engine_idx, llm_idx)]
     else:
-        session.state.lead_stage = engine_stage
+        resolved = engine_stage
+
+    # Additional guard: LLM cannot jump to captured/handed_off without an actual phone number.
+    # Prevents the model from skipping the contact-capture step on its own initiative.
+    if resolved in ("captured", "handed_off") and not session.state.phone:
+        resolved = engine_stage
+
+    session.state.lead_stage = resolved
     if response_data.get("language") in ("en", "hi"):
         session.state.language = response_data["language"]
+
+    # BUG FIX: sync the engine-corrected stage back into the response so the
+    # frontend always receives the floor value, not the LLM's raw (potentially downgraded) stage.
+    response_data["lead_stage"] = session.state.lead_stage
 
     # Extract name from LLM response — always overwrite so explicit "my name is X" corrects any prior wrong value
     if response_data.get("captured_name"):

@@ -15,7 +15,6 @@ const BROCHURE_CONFIG: Record<string, { label: string; files: { slug: string; na
     label: 'Westin Residences',
     files: [
       { slug: 'westin-main', name: 'Brochure' },
-      { slug: 'westin-docket', name: 'CP Docket' },
     ],
   },
   tulip: {

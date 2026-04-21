@@ -76,10 +76,6 @@ function WestinCard({ delay }: { delay: number }) {
                 label="Westin Residences Brochure"
                 slug="westin-main"
               />
-              <BrochureButton
-                label="CP Docket"
-                slug="westin-docket"
-              />
             </div>
           </motion.div>
         )}
