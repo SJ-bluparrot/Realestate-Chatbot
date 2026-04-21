@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { Message } from '@/lib/types';
 import CTAPrompt from './CTAPrompt';
 import HandoffCard from './HandoffCard';
@@ -123,12 +124,41 @@ function AssistantMessage({ message }: { message: Message }) {
           className="pl-4 relative"
           style={{ borderLeft: '1.5px solid rgba(184, 150, 90, 0.35)' }}
         >
-          <p
-            className="text-sm leading-[1.85] font-light"
+          <div
+            className="text-sm leading-[1.85] font-light markdown-body"
             style={{ color: '#2D2926' }}
           >
-            {message.content}
-          </p>
+            <ReactMarkdown
+              components={{
+                h2: ({ children }) => (
+                  <h2 className="text-sm font-semibold mt-4 mb-1" style={{ color: '#1C1915' }}>{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className="text-sm font-semibold mt-3 mb-1" style={{ color: '#1C1915' }}>{children}</h3>
+                ),
+                strong: ({ children }) => (
+                  <strong className="font-semibold" style={{ color: '#1C1915' }}>{children}</strong>
+                ),
+                ul: ({ children }) => (
+                  <ul className="mt-2 mb-2 space-y-1 pl-4 list-disc">{children}</ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className="mt-2 mb-2 space-y-1 pl-4 list-decimal">{children}</ol>
+                ),
+                li: ({ children }) => (
+                  <li className="leading-relaxed">{children}</li>
+                ),
+                p: ({ children }) => (
+                  <p className="mb-2 last:mb-0">{children}</p>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote className="border-l-2 pl-3 italic my-2" style={{ borderColor: '#B8965A', color: '#6B6560' }}>{children}</blockquote>
+                ),
+              }}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
 
           {/* Follow-up question */}
           {message.followUpQuestion && (
