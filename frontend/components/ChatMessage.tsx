@@ -125,25 +125,25 @@ function AssistantMessage({ message }: { message: Message }) {
           style={{ borderLeft: '1.5px solid rgba(184, 150, 90, 0.35)' }}
         >
           <div
-            className="text-sm leading-[1.85] font-light markdown-body"
+            className="text-base leading-[1.9] font-light markdown-body"
             style={{ color: '#2D2926' }}
           >
             <ReactMarkdown
               components={{
                 h2: ({ children }) => (
-                  <h2 className="text-sm font-semibold mt-4 mb-1" style={{ color: '#1C1915' }}>{children}</h2>
+                  <h2 className="text-base font-semibold mt-4 mb-1" style={{ color: '#1C1915' }}>{children}</h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 className="text-sm font-semibold mt-3 mb-1" style={{ color: '#1C1915' }}>{children}</h3>
+                  <h3 className="text-base font-semibold mt-3 mb-1" style={{ color: '#1C1915' }}>{children}</h3>
                 ),
                 strong: ({ children }) => (
                   <strong className="font-semibold" style={{ color: '#1C1915' }}>{children}</strong>
                 ),
                 ul: ({ children }) => (
-                  <ul className="mt-2 mb-2 space-y-1 pl-4 list-disc">{children}</ul>
+                  <ul className="mt-2 mb-2 space-y-1.5 pl-4 list-disc">{children}</ul>
                 ),
                 ol: ({ children }) => (
-                  <ol className="mt-2 mb-2 space-y-1 pl-4 list-decimal">{children}</ol>
+                  <ol className="mt-2 mb-2 space-y-1.5 pl-4 list-decimal">{children}</ol>
                 ),
                 li: ({ children }) => (
                   <li className="leading-relaxed">{children}</li>
