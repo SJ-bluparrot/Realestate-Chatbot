@@ -93,7 +93,7 @@ export default function BrandingPanel() {
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="hidden lg:flex flex-col justify-between w-80 xl:w-96 flex-shrink-0 relative overflow-hidden"
+      className="hidden lg:flex flex-col justify-between w-52 xl:w-60 flex-shrink-0 relative overflow-hidden"
       style={{ background: '#1C1915' }}
     >
       {/* Subtle diagonal stripe pattern */}
@@ -119,7 +119,7 @@ export default function BrandingPanel() {
       />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full px-10 py-12">
+      <div className="relative z-10 flex flex-col h-full px-6 py-10">
         {/* Top — brand identifier */}
         <div>
           <motion.p
