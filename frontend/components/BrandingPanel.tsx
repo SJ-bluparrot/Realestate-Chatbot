@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -24,21 +23,18 @@ function downloadBrochure(slug: string) {
 }
 
 function WestinCard({ delay }: { delay: number }) {
-  const [open, setOpen] = useState(false);
-
   return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay, duration: 0.5 }}
     >
-      {/* Main card — click to toggle brochure options */}
       <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all"
+        onClick={() => downloadBrochure('westin-main')}
+        className="w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all hover:border-opacity-40"
         style={{
-          background: open ? 'rgba(184, 150, 90, 0.13)' : 'rgba(184, 150, 90, 0.07)',
-          border: `1px solid ${open ? 'rgba(184, 150, 90, 0.35)' : 'rgba(184, 150, 90, 0.15)'}`,
+          background: 'rgba(184, 150, 90, 0.07)',
+          border: '1px solid rgba(184, 150, 90, 0.15)',
         }}
       >
         <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#B8965A' }} />
@@ -50,36 +46,10 @@ function WestinCard({ delay }: { delay: number }) {
             Dwarka Expressway
           </p>
         </div>
-        <motion.div
-          animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-          style={{ color: '#B8965A' }}
-        >
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M2 3.5 5 6.5l3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </motion.div>
+        <span style={{ color: '#B8965A' }}>
+          <DownloadIcon />
+        </span>
       </button>
-
-      {/* Dropdown — two brochures */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="mt-1 ml-3 space-y-1">
-              <BrochureButton
-                label="Westin Residences Brochure"
-                slug="westin-main"
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }
@@ -116,25 +86,6 @@ function TulipCard({ delay }: { delay: number }) {
   );
 }
 
-function BrochureButton({ label, slug }: { label: string; slug: string }) {
-  return (
-    <button
-      onClick={() => downloadBrochure(slug)}
-      className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-left transition-all"
-      style={{
-        background: 'rgba(184, 150, 90, 0.05)',
-        border: '1px solid rgba(184, 150, 90, 0.1)',
-      }}
-    >
-      <span style={{ color: '#B8965A', flexShrink: 0 }}>
-        <DownloadIcon />
-      </span>
-      <span className="text-xs font-light truncate" style={{ color: '#C4BEB7' }}>
-        {label}
-      </span>
-    </button>
-  );
-}
 
 export default function BrandingPanel() {
   return (
