@@ -72,7 +72,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           onBlur={() => setFocused(false)}
           disabled={disabled}
           rows={1}
-          placeholder={disabled ? 'ARIA is responding…' : 'Ask about pricing, amenities, or schedule a visit…'}
+          placeholder={disabled ? 'ARIA is responding…' : 'Ask about pricing, amenities, or anything else!'}
           className="flex-1 resize-none bg-transparent outline-none text-sm leading-relaxed placeholder:text-sm"
           style={{
             color: '#1C1915',

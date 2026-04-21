@@ -148,9 +148,9 @@ function ChatHeader({ onReset }: { onReset: () => void }) {
         onClick={onReset}
         whileHover={{ opacity: 0.7 }}
         whileTap={{ scale: 0.95 }}
-        className="flex items-center gap-1.5 text-xs font-light py-1.5 px-3 rounded-lg transition-all"
+        className="flex items-cente bg-black gap-1.5 text-xs font-light py-2 px-4 rounded-lg transition-all"
         style={{
-          color: '#918B84',
+          color: '#E3DAC9', 
           border: '1px solid rgba(229, 224, 216, 0.8)',
         }}
         title="Start a new conversation"
